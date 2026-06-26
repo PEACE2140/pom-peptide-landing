@@ -6,6 +6,24 @@
 <title>Peace of Mind — Medical Peptide Weight Loss · Miami</title>
 <meta name="description" content="Physician-led peptide weight loss in Miami. Personalized protocols, weekly check-ins, in-house labs. Book your free discovery call.">
 
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '988178800680786');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=988178800680786&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1540,6 +1558,118 @@ function toggleFaq(btn){
   document.querySelectorAll('.faq-item.open').forEach(x=>x.classList.remove('open'));
   if(!wasOpen)item.classList.add('open');
 }
+
+// ============================================================
+// META PIXEL — comprehensive event tracking
+// ============================================================
+function fbTrack(event, params){
+  if(typeof fbq !== 'function') return;
+  try{ params ? fbq('track', event, params) : fbq('track', event); }catch(e){}
+}
+function fbCustom(name, params){
+  if(typeof fbq !== 'function') return;
+  try{ params ? fbq('trackCustom', name, params) : fbq('trackCustom', name); }catch(e){}
+}
+
+// CTA button clicks — any [href="#book"], any .btn-primary, any nav CTA → Lead
+document.addEventListener('click', e=>{
+  const a = e.target.closest('a, button');
+  if(!a) return;
+  const href = a.getAttribute('href') || '';
+  const text = (a.textContent || '').trim().slice(0, 60);
+
+  // Booking CTAs (anything that scrolls to #book or opens Calendly)
+  if(href === '#book' || a.classList.contains('nav-cta') || (a.classList.contains('btn-primary') && href.includes('#book'))){
+    fbTrack('Lead', {content_name: 'Booking CTA', content_category: text, value: 1, currency: 'USD'});
+    fbCustom('CTA_Click', {label: text || 'Book Free Call'});
+  }
+  // Phone clicks
+  if(href.startsWith('tel:')){
+    fbTrack('Contact', {content_name: 'Phone Call Click', method: 'phone'});
+  }
+  // Email clicks
+  if(href.startsWith('mailto:')){
+    fbTrack('Contact', {content_name: 'Email Click', method: 'email'});
+  }
+  // FAQ open
+  if(a.classList.contains('faq-q')){
+    const q = (a.firstChild && a.firstChild.textContent) ? a.firstChild.textContent.trim() : '';
+    fbCustom('FAQ_Open', {question: q.slice(0, 80)});
+  }
+  // Language toggle
+  if(a.classList.contains('lang-toggle')){
+    const newLang = document.documentElement.lang === 'en' ? 'es' : 'en';
+    fbCustom('Language_Switch', {to: newLang});
+  }
+  // Nav anchor clicks
+  if(a.tagName === 'A' && href.startsWith('#') && href.length > 1 && !a.classList.contains('nav-cta')){
+    fbCustom('Nav_Click', {section: href.replace('#','')});
+  }
+}, true);
+
+// Scroll-depth + section view tracking
+const sectionEvents = new Set();
+const sectionObserver = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const sec = e.target;
+    const id = sec.id || sec.getAttribute('data-section') || '';
+    if(!id || sectionEvents.has(id)) return;
+    sectionEvents.add(id);
+    fbCustom('Section_View', {section: id});
+    // Map key sections to ViewContent
+    if(['peptides','results','difference','faq'].includes(id)){
+      fbTrack('ViewContent', {content_name: 'Section: ' + id, content_category: id});
+    }
+    // Booking section view = strong intent
+    if(id === 'book'){
+      fbTrack('InitiateCheckout', {content_name: 'Reached Booking Section', value: 1, currency: 'USD'});
+    }
+  });
+}, {threshold: 0.4});
+document.querySelectorAll('section[id]').forEach(s=>sectionObserver.observe(s));
+
+// Scroll depth milestones (25/50/75/100%)
+const scrollMilestones = [25, 50, 75, 100];
+const scrollFired = new Set();
+function checkScroll(){
+  const h = document.documentElement;
+  const pct = Math.round(((h.scrollTop + window.innerHeight) / h.scrollHeight) * 100);
+  scrollMilestones.forEach(m=>{
+    if(pct >= m && !scrollFired.has(m)){
+      scrollFired.add(m);
+      fbCustom('Scroll_Depth', {percent: m});
+    }
+  });
+}
+let scrollTicking = false;
+window.addEventListener('scroll', ()=>{
+  if(scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(()=>{ checkScroll(); scrollTicking = false; });
+}, {passive: true});
+
+// Time-on-page milestones (15s, 30s, 60s, 120s)
+[15, 30, 60, 120].forEach(s => setTimeout(() => fbCustom('Time_On_Page', {seconds: s}), s * 1000));
+
+// Calendly booking events — listen for postMessage from the embedded widget
+window.addEventListener('message', e=>{
+  if(!e.data || typeof e.data !== 'object') return;
+  const evt = e.data.event || '';
+  if(!evt.startsWith('calendly.')) return;
+  if(evt === 'calendly.event_type_viewed'){
+    fbCustom('Calendly_Opened');
+  }
+  if(evt === 'calendly.date_and_time_selected'){
+    fbCustom('Calendly_Slot_Selected');
+    fbTrack('AddToCart', {content_name: 'Calendly Slot Selected'});
+  }
+  if(evt === 'calendly.event_scheduled'){
+    fbTrack('Schedule', {content_name: 'Discovery Call Booked', value: 1, currency: 'USD'});
+    fbTrack('Lead', {content_name: 'Discovery Call Confirmed', value: 50, currency: 'USD'});
+    fbCustom('Booking_Confirmed');
+  }
+});
 
 // Scroll reveal
 const observer=new IntersectionObserver(entries=>{
