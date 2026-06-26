@@ -80,27 +80,14 @@ p{color:#475569;font-size:1.02rem;line-height:1.75}
 }
 .nav-inner{display:flex;justify-content:space-between;align-items:center;gap:32px}
 .brand{
-  display:flex;align-items:center;gap:12px;
+  display:flex;align-items:center;
   text-decoration:none;color:var(--dark);
 }
-.brand-mark{
-  width:38px;height:38px;
-  background:linear-gradient(135deg,#3DBDB0 0%,#2A9E92 100%);
-  border-radius:11px;
-  display:flex;align-items:center;justify-content:center;
-  color:white;font-weight:700;font-size:1.1rem;
-  font-family:'Playfair Display',serif;
-  box-shadow:0 4px 12px var(--teal-glow);
+.brand-logo{
+  height:44px;width:auto;display:block;
 }
-.brand-text{
-  font-family:'Playfair Display',serif;
-  font-weight:600;font-size:1.15rem;
-}
-.brand-text small{
-  display:block;font-family:'Inter',sans-serif;
-  font-size:.65rem;font-weight:500;
-  letter-spacing:.2em;text-transform:uppercase;
-  color:var(--gray);
+@media (max-width:760px){
+  .brand-logo{height:36px}
 }
 .nav-links{display:flex;gap:32px;align-items:center}
 .nav-links a{
@@ -974,11 +961,7 @@ section.tint-cool{background:#F4F8FA}
 <nav class="nav">
   <div class="container nav-inner">
     <a href="#" class="brand">
-      <div class="brand-mark">P</div>
-      <div class="brand-text">
-        Peace of Mind
-        <small>Peptide Therapy · Miami</small>
-      </div>
+      <img src="pom-logo.png" alt="Peace of Mind Rehab Center" class="brand-logo">
     </a>
     <div class="nav-links">
       <a href="#how">How It Works</a>
@@ -1030,9 +1013,6 @@ section.tint-cool{background:#F4F8FA}
       <div class="hero-visual">
         <div class="hero-image-frame">
           <img src="wl-doctor-care.png" alt="Physician-guided patient care" class="hero-image">
-          <div class="hero-logo-corner">
-            <img src="pom-logo.png" alt="Peace of Mind Rehab Center">
-          </div>
           <div class="hero-image-caption">
             <div class="caption-eyebrow" data-i18n="hero.caption.eyebrow">Peace of Mind Clinic</div>
             <div class="caption-text" data-i18n-html="hero.caption.text">Physician-led peptide therapy.<br>Miami clinic + TeleHealth nationwide.</div>
